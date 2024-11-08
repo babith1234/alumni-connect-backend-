@@ -10,7 +10,7 @@ const urlSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['web/app', 'ai/ml', 'electronics', 'mechanics','Software','others'], 
+    enum: ['web-app', 'ai-ml', 'electronics', 'mechanics','Software','others'], 
     
   }
 }, { timestamps: true }); 

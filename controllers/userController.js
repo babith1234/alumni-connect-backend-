@@ -123,6 +123,7 @@ const login = async (req, res) => {
         if (!user || user.password !== password) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
+        
 
         // Generate JWT token with user ID and role
         const token = jwt.sign(
