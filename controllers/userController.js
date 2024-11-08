@@ -209,5 +209,55 @@ const login = async (req, res) => {
   };
   
 
+
+  const UrlModel = require('../models/referalModel'); // Import the model
+
+// Controller to create a new URL document with category
+const createUrl = async (req, res) => {
+  try {
+
+    const { url, category } = req.body; // Get the URL and category from the request body
+   
+    // Validate URL and category (ensure they are not empty)
+    if (!url || !category) {
+      return res.status(400).json({ message: 'URL and category are required' });
+    }
+
+    // Create a new UrlModel instance
+    const newUrl = new UrlModel({
+      url,
+      category
+    });
+
+    // Save the new URL document
+    await newUrl.save();
+
+    // Send a success response
+    return res.status(201).json({ message: 'URL created successfully', data: newUrl });
+  } catch (error) {
+    console.error('Error creating URL:', error);
+    return res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+
+const getAllUrls = async (req, res) => {
+    try {
+      // Fetch all URL documents from the database
+      const urls = await UrlModel.find(); 
   
-  module.exports = { createProfile, addChat,login, getStudentsFromChats, getAllAlumni };
+      // Check if no URLs are found
+      if (!urls || urls.length === 0) {
+        return res.status(404).json({ message: 'No URLs found' });
+      }
+  
+      // Send the list of URLs in the response
+      return res.status(200).json({ message: 'URLs fetched successfully', data: urls });
+    } catch (error) {
+      console.error('Error fetching URLs:', error);
+      return res.status(500).json({ message: 'Server error', error: error.message });
+    }
+  };
+
+
+module.exports = { createProfile, addChat,login, getStudentsFromChats, getAllAlumni,createUrl,getAllUrls};

@@ -7,5 +7,7 @@ router.post('/add-chat/:alumniId/:studentId', userController.addChat);
 router.post('/login/:type', userController.login);
 router.get('/get-students-from-chats/:id', userController.getStudentsFromChats);
 router.get('/get-all-alumni', userController.getAllAlumni);
+router.post('/create-url', userController.createUrl);
+router.get('/get-all-urls', userController.getAllUrls);
 
 module.exports=router
