@@ -1,7 +1,6 @@
 const Student = require('../models/studentModel');
 const Alumni = require('../models/alumniModel');
 
-
 const createProfile = async (req, res) => {
     try {
       const { profileType } = req.params; // Get the profileType from the URL parameter (Student or Alumni)
@@ -16,7 +15,7 @@ const createProfile = async (req, res) => {
         advice,
         comment,
         requirements,
-        chats
+        
       } = req.body;
   
       // Create the profile based on the profile type
@@ -102,45 +101,51 @@ const addChat = async (req, res) => {
 
 
 
+const jwt = require('jsonwebtoken'); // Import jsonwebtoken
 const login = async (req, res) => {
-    const { name, password } = req.body;  // Expecting name and password in the body
-    const { type } = req.params;  // Expecting type (student or alumni) in the URL
-  
+    const { name, password } = req.body; // Expecting name and password in the body
+    const { type } = req.params; // Expecting type (student or alumni) in the URL
+
     try {
-      // Determine which model to use (Student or Alumni)
-      let user;
-      if (type === 'student') {
-        user = await Student.findOne({ name });
-      } else if (type === 'alumni') {
-        user = await Alumni.findOne({ name });
-      } else {
-        return res.status(400).json({ message: 'Invalid user type' });
-      }
-  
-      // If no user found, return an error
-      if (!user) {
-        return res.status(404).json({ message: `${type} not found` });
-      }
-  
-      // Compare the provided password directly (no bcrypt hashing)
-      if (user.password !== password) {
-        return res.status(400).json({ message: 'Invalid credentials' });
-      }
-  
-      // Successful login
-      res.status(200).json({
-        message: `${type.charAt(0).toUpperCase() + type.slice(1)} login successful`,
-        user: {
-          id: user._id,
-          name: user.name,
-        },
-      });
-      
+        let user;
+        let role;
+
+        if (type === 'student') {
+            user = await Student.findOne({ name });
+            role = 'student';
+        } else if (type === 'alumni') {
+            user = await Alumni.findOne({ name });
+            role = 'alumni';
+        } else {
+            return res.status(400).json({ message: 'Invalid user type' });
+        }
+
+        if (!user || user.password !== password) {
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
+
+        // Generate JWT token with user ID and role
+        const token = jwt.sign(
+            { userId: user._id, role: role },
+            process.env.JWT_SECRET, // Make sure to set this in your environment variables
+            { expiresIn: '1h' }
+        );
+
+        res.status(200).json({
+            message: `${type.charAt(0).toUpperCase() + type.slice(1)} login successful`,
+            token: token,
+            user: {
+                id: user._id,
+                name: user.name,
+                role:role
+            },
+        });
     } catch (err) {
-      console.error(err.message);
-      res.status(500).json({ message: 'Server error', error: err.message });
+        console.error(err.message);
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
-  };
+};
+
   
 
   const getStudentsFromChats = async (req, res) => {
